@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .table-section {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .low-stock {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Inventory Management System</h1>
+            <p>Manage your products efficiently</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalItems">0</h3>
+                <p>Total Items</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalValue">$0</h3>
+                <p>Total Value</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="lowStockItems">0</h3>
+                <p>Low Stock Items</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2 id="formTitle">Add New Product</h2>
+                <div id="productForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="productName">Product Name *</label>
+                            <input type="text" id="productName">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category">
+                                <option value="">Select Category</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Food">Food</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Books">Books</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">Quantity *</label>
+                            <input type="number" id="quantity" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price ($) *</label>
+                            <input type="number" id="price" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="submitBtn">Add Product</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none; margin-left: 10px; background: #6c757d; color: white;">Cancel</button>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <input type="text" id="searchInput" placeholder="🔍 Search products by name or category...">
+            </div>
+
+            <div class="table-section">
+                <table id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 7h-4V5a3 3 0 0 0-6 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1zM10 5a1 1 0 1 1 2 0v2h-2V5zm6 13H8v-2h8v2z"/>
+                                    </svg>
+                                    <h3>No products yet</h3>
+                                    <p>Add your first product to get started</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let inventory = [];
+        let editingId = null;
+
+        const inventoryBody = document.getElementById('inventoryBody');
+        const searchInput = document.getElementById('searchInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const formTitle = document.getElementById('formTitle');
+
+        // Initialize with sample data for testing
+        loadInventory();
+        
+        // Add sample products if inventory is empty
+        if (inventory.length === 0) {
+            inventory = [
+                { id: 1, name: 'Laptop', category: 'Electronics', quantity: 15, price: 999.99 },
+                { id: 2, name: 'T-Shirt', category: 'Clothing', quantity: 5, price: 19.99 },
+                { id: 3, name: 'Coffee Beans', category: 'Food', quantity: 30, price: 12.50 }
+            ];
+            renderInventory();
+        }
+        updateStats();
+
+        // Handle Add/Update Product button click
+        submitBtn.addEventListener('click', function() {
+            const productName = document.getElementById('productName').value.trim();
+            const category = document.getElementById('category').value;
+            const quantity = document.getElementById('quantity').value;
+            const price = document.getElementById('price').value;
+
+            // Validation
+            if (!productName || !category || !quantity || !price) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const product = {
+                id: editingId || Date.now(),
+                name: productName,
+                category: category,
+                quantity: parseInt(quantity),
+                price: parseFloat(price)
+            };
+
+            if (editingId) {
+                const index = inventory.findIndex(function(item) {
+                    return item.id === editingId;
+                });
+                if (index !== -1) {
+                    inventory[index] = product;
+                }
+                editingId = null;
+                submitBtn.textContent = 'Add Product';
+                formTitle.textContent = 'Add New Product';
+                cancelBtn.style.display = 'none';
+            } else {
+                inventory.push(product);
+            }
+
+            // Clear form
+            document.getElementById('productName').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('price').value = '';
+            
+            renderInventory();
+            updateStats();
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            editingId = null;
+            document.getElementById('productName').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('price').value = '';
+            submitBtn.textContent = 'Add Product';
+            formTitle.textContent = 'Add New Product';
+            cancelBtn.style.display = 'none';
+        });
+
+        searchInput.addEventListener('input', function(e) {
+            renderInventory(e.target.value);
+        });
+
+        function renderInventory(searchTerm = '') {
+            const filteredInventory = inventory.filter(function(item) {
+                return item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       item.category.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+
+            if (filteredInventory.length === 0) {
+                inventoryBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div>
+                                <h3>No products found</h3>
+                                <p>${searchTerm ? 'Try a different search term' : 'Add your first product to get started'}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            inventoryBody.innerHTML = filteredInventory.map(function(item) {
+                return `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td class="${item.quantity < 10 ? 'low-stock' : ''}">${item.quantity}${item.quantity < 10 ? ' ⚠️' : ''}</td>
+                        <td>${item.price.toFixed(2)}</td>
+                        <td>${(item.quantity * item.price).toFixed(2)}</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="editProduct(${item.id})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteProduct(${item.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function editProduct(id) {
+            const product = inventory.find(item => item.id === id);
+            if (product) {
+                editingId = id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('category').value = product.category;
+                document.getElementById('quantity').value = product.quantity;
+                document.getElementById('price').value = product.price;
+                submitBtn.textContent = 'Update Product';
+                formTitle.textContent = 'Edit Product';
+                cancelBtn.style.display = 'inline-block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                inventory = inventory.filter(item => item.id !== id);
+                saveInventory();
+                renderInventory();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalItems').textContent = inventory.length;
+            
+            const totalValue = inventory.reduce(function(sum, item) {
+                return sum + (item.quantity * item.price);
+            }, 0);
+            document.getElementById('totalValue').textContent = `${totalValue.toFixed(2)}`;
+            
+            const lowStock = inventory.filter(function(item) {
+                return item.quantity < 10;
+            }).length;
+            document.getElementById('lowStockItems').textContent = lowStock;
+        }
+
+        function saveInventory() {
+            // Store in memory using a simple object
+            inventory = [...inventory];
+        }
+
+        function loadInventory() {
+            // Memory persists during the session
+            renderInventory();
+        }
+    </script>
+</body>
+</html>
